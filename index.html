@@ -102,4 +102,136 @@
       margin-top: 30px;
     }
 
-    .photos img
+    .photos img {
+      position: absolute;
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+      transform: rotate(var(--rot));
+    }
+
+    .photos img:nth-child(1) { top: 0; left: 0; --rot: -8deg; }
+    .photos img:nth-child(2) { top: 30px; right: 0; --rot: 6deg; }
+    .photos img:nth-child(3) { bottom: 0; left: 40px; --rot: -4deg; }
+    .photos img:nth-child(4) { bottom: 20px; right: 30px; --rot: 8deg; }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="screen1" class="screen">
+    <h1>VALENTINE</h1>
+    <p>Toca la pantalla</p>
+  </div>
+
+  <div id="screen2" class="screen hidden">
+    <h1>¿Quieres ser mi Valentine?</h1>
+    <div class="buttons">
+      <button id="yesBtn">Sí</button>
+      <button id="noBtn">No</button>
+    </div>
+  </div>
+
+  <div id="screen3" class="screen hidden">
+    <h1>Te amo hermosa, nos vemos el sábado a las 8 con algo lindo ❤️</h1>
+    <div class="photos">
+      <img src="foto1.jpeg" />
+      <img src="foto2.jpeg" />
+      <img src="foto3.jpeg" />
+      <img src="foto4.jpeg" />
+    </div>
+    <audio id="music" loop>
+      <source src="cancion.mp3" type="audio/mpeg" />
+    </audio>
+  </div>
+
+  <canvas id="fireworks"></canvas>
+
+  <script>
+    const screen1 = document.getElementById('screen1');
+    const screen2 = document.getElementById('screen2');
+    const screen3 = document.getElementById('screen3');
+    const yesBtn = document.getElementById('yesBtn');
+    const noBtn = document.getElementById('noBtn');
+    const music = document.getElementById('music');
+
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.classList.add('heart');
+      heart.textContent = '❤️';
+      heart.style.left = Math.random() * 100 + 'vw';
+      heart.style.animationDuration = (2 + Math.random() * 3) + 's';
+      document.body.appendChild(heart);
+      setTimeout(() => heart.remove(), 5000);
+    }
+    setInterval(createHeart, 300);
+
+    screen1.addEventListener('click', () => {
+      screen1.classList.add('hidden');
+      screen2.classList.remove('hidden');
+    });
+
+    yesBtn.addEventListener('click', () => {
+      screen2.classList.add('hidden');
+      screen3.classList.remove('hidden');
+      music.play();
+      startFireworks();
+    });
+
+    noBtn.addEventListener('mouseover', () => {
+      const x = Math.random() * (window.innerWidth - 100);
+      const y = Math.random() * (window.innerHeight - 50);
+      noBtn.style.position = 'absolute';
+      noBtn.style.left = x + 'px';
+      noBtn.style.top = y + 'px';
+    });
+
+    const canvas = document.getElementById('fireworks');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particles = [];
+
+    function createFirework(x, y) {
+      for (let i = 0; i < 50; i++) {
+        particles.push({
+          x: x,
+          y: y,
+          vx: (Math.random() - 0.5) * 6,
+          vy: (Math.random() - 0.5) * 6,
+          life: 60
+        });
+      }
+    }
+
+    function updateFireworks() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach((p, i) => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life--;
+        ctx.fillStyle = 'white';
+        ctx.fillRect(p.x, p.y, 3, 3);
+        if (p.life <= 0) particles.splice(i, 1);
+      });
+      requestAnimationFrame(updateFireworks);
+    }
+
+    function startFireworks() {
+      setInterval(() => {
+        createFirework(Math.random() * canvas.width, Math.random() * canvas.height / 2);
+      }, 500);
+      updateFireworks();
+    }
+  </script>
+</body>
+</html>
